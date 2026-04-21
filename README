@@ -1,0 +1,13 @@
+# AutoSat by noemi in 2026
+# thanks to AK-Homberger for his prevous code
+#
+# Used hardware
+# - esp8266 d1 mini
+# - Diseqc rotor
+# - gy-271 (with QMC5883P - not QMC5883L)
+# - gy-521
+# - d24v10f5 (step down 24v to 5v)
+# - Adafruit drv8871 (actuator control)
+# - some small electronic parts
+#
+#
