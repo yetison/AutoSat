@@ -20,3 +20,5 @@ C++ (needed for stabil software diseqc puls generation)
  - 1x 1mH inductor
  
  - soldering station/knowledge
+ - 
+<img src="SatFinderSchematic.png">
