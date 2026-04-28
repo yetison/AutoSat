@@ -26,8 +26,8 @@ C++ (needed for stabil software diseqc puls generation)
 ## building hardware interface
 
 ### schematic
-<img src="SatFinderSchematic.png">
+<img src="img/SatFinderSchematic.png">
 
 ### pcb layout:
-<img src="SatFinderPCB.png">
+<img src="img/SatFinderPCB.png">
 
