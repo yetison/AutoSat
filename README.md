@@ -1,6 +1,7 @@
 AutoSat (Satelite Dish Positioner) - code updated in 2026 with addional features like calibrate sensors and QMC5883P code adaption
 
 many thanks to AK-Homberger for his previous code and electronic circuit which you could find here:
+<br>
 https://github.com/AK-Homberger/Satellite-Dish-Positioner
 
 C++ (needed for stabil software diseqc puls generation)
