@@ -6,7 +6,7 @@ https://github.com/AK-Homberger/Satellite-Dish-Positioner
 
 C++ (needed for stabil software diseqc puls generation)
 
- hardware:
+needed hardware:
 
  - esp8266 d1 mini (clones works too)
  - Diseqc rotor
@@ -19,6 +19,11 @@ C++ (needed for stabil software diseqc puls generation)
  - 1x 3,3uF / 1x 56nF capasitors
  - 1x 1mH inductor
  
- - soldering station/knowledge
- - 
+ soldering station/knowledge
+
+schematic:
 <img src="SatFinderSchematic.png">
+
+pcb layout:
+<img src="SatFinderPCB.png">
+
