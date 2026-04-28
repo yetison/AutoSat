@@ -1,4 +1,5 @@
-AutoSat (Satelite Dish Positioner) - code updated in 2026 with addional features like calibrate sensors and QMC5883P code adaption
+#AutoSat (Satelite Dish Positioner)
+code updated in 2026 with addional features like calibrate sensors and QMC5883P code adaption
 
 many thanks to AK-Homberger for his previous code and electronic circuit which you could find here:
 <br>
@@ -6,7 +7,7 @@ https://github.com/AK-Homberger/Satellite-Dish-Positioner
 
 C++ (needed for stabil software diseqc puls generation)
 
-needed hardware:
+##needed hardware:
 
  - esp8266 d1 mini (clones works too)
  - Diseqc rotor
@@ -21,9 +22,9 @@ needed hardware:
  
  soldering station/knowledge
 
-schematic:
+##schematic:
 <img src="SatFinderSchematic.png">
 
-pcb layout:
+##pcb layout:
 <img src="SatFinderPCB.png">
 
