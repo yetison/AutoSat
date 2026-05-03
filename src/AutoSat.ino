@@ -23,9 +23,9 @@
 #define Az_PCB_Correction 180
 
 const char* ssid = "ssid";
-const char* password = "yourpassword";
+const char* password = "ssid-pw";
 
-float Astra_Az = 164, Astra_El = 30.19, El_Offset = -18, Az_Offset = -10.0;
+float Astra_Az = 167, Astra_El = 30.19, El_Offset = 15, Az_Offset = -10.0;
 int motorSpeed = 700;
 float Azimut = 0, Elevation = 0;
 float sAzimut = 0, sElevation = 0;
@@ -42,6 +42,7 @@ bool auto_on = false, update_rotor = false, rotor_changed = false, rotor_off = f
 unsigned long comp_on_time = 0;
 int motor_error = 0;
 int LED_level = 0;
+unsigned long lastMotorAction = 0; // Sperrzeit für Auto-Loop
 
 MPU6050 mpu (Wire);
 Adafruit_QMC5883P qmc; // QMC Instanz
@@ -268,15 +269,15 @@ void loop(void) {
   Elevation_Calc();
 
   // Elevation Motor Control (dependent on auto_on)
-  if (auto_on && motor_error < 20) {
+  if (auto_on && motor_error < 20 && (millis() - lastMotorAction > 500)) {
     float diff = sElevation - Elevation;
-    if (abs(diff) > 0.3) {
+    if (abs(diff) > 0.5) { // Deadband auf 0.5° erhöht
       Serial.print("Elevation diff: "); Serial.println(diff);
-      if (diff > 0.3) {
+      if (diff > 0.5) {
         Serial.println("Motor UP called");
         motor(UP);
       }
-      else if (diff < -0.3) {
+      else if (diff < -0.5) {
         Serial.println("Motor DOWN called");
         motor(DOWN);
       }
@@ -310,6 +311,7 @@ void loop(void) {
 } // End of loop()
 
 void Elevation_Calc() {
+  mpu.Execute(); // MPU Daten aktualisieren
   Elevation = -round((mpu.GetAngX() + El_Offset) * 10) / 10;
   if (Elevation < 0 ) Elevation = 0;
 }
@@ -401,20 +403,14 @@ void handleAzDown() { dAzimut -= 0.5; update_rotor = true; server.send(200, "tex
 void handleAzUp() { dAzimut += 0.5; update_rotor = true; server.send(200, "text/html"); }
 void handleElDown() { 
   motor_error = 0;
-  if (!auto_on) {
-    motor(DOWN);
-  } else {
-    dElevation -= 0.1; 
-  }
+  dElevation -= 0.1; // Manuelle Korrektur anpassen
+  motor(DOWN); 
   server.send(200, "text/html"); 
 }
 void handleElUp() { 
   motor_error = 0;
-  if (!auto_on) {
-    motor(UP);
-  } else {
-    dElevation += 0.1; 
-  }
+  dElevation += 0.1; // Manuelle Korrektur anpassen
+  motor(UP);
   server.send(200, "text/html"); 
 }
 void handleRotorDown() { RotorPos -= 1; update_rotor = true; server.send(200, "text/html"); }
@@ -469,7 +465,16 @@ void handleRotorOff() {
   digitalWrite(motor1, HIGH);
 }
 void handleSlider1() { if (server.args() > 0) { dAzimut = server.arg(0).toFloat(); } server.send(200, "text/html"); }
-void handleSlider2() { if (server.args() > 0) { dElevation = server.arg(0).toFloat(); } server.send(200, "text/html"); }
+void handleSlider2() { 
+  if (server.hasArg("level")) { 
+    dElevation = server.arg("level").toFloat(); 
+    Serial.print("Slider2 updated: ");
+    Serial.println(dElevation);
+  } else {
+    Serial.println("Slider2 update failed: no level argument");
+  }                
+  server.send(200, "text/html"); 
+}
 void handleSlider3() { if (server.args() > 0) { RotorPos = server.arg(0).toFloat(); update_rotor = true; } server.send(200, "text/html"); }
 void handleNotFound() { server.send(404, "text/plain", "File Not Found\n\n"); }
 void EEPROM_Write(float *num, int MemPos) {
@@ -532,26 +537,17 @@ void goto_angle(float a) {
   write_byte_with_parity(d2);
   interrupts();
 }
+
 void motor(int direction) {
-  float X = 0, Y = 0;
-  mpu.Execute();
-  X = round(mpu.GetAngX() * 10) / 10;
   if (direction == UP) {
     digitalWrite(motor2, LOW);
     analogWrite(motor1, motorSpeed);
-    delay(10);
-    mpu.Execute();
-    Y = round(mpu.GetAngX() * 10) / 10;
-  }
-  if (direction == DOWN) {
+  } else if (direction == DOWN) {
     digitalWrite(motor1, LOW);
     analogWrite(motor2, motorSpeed - 500);
-    delay(10);
-    mpu.Execute();
-    Y = round(mpu.GetAngX() * 10) / 10;
   }
+  delay(150); // Motor kurz bewegen
   digitalWrite(motor1, HIGH);
   digitalWrite(motor2, HIGH);
-  delay(10);
-  if ( X == Y ) motor_error++; else motor_error = 0;
+  lastMotorAction = millis(); // Sperre setzen
 }
